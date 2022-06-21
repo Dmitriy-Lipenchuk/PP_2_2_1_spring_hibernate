@@ -79,6 +79,6 @@ public class User {
                 ", FirstName = '" + firstName + '\'' +
                 ", LastName = '" + lastName + '\'' +
                 ", Email = '" + email + '\'' +
-                ", Car = " + car.getModel();
+                ", Car = " + car;
     }
 }

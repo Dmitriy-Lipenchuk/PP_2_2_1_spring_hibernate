@@ -5,9 +5,7 @@ import hiber.model.User;
 import org.hibernate.HibernateError;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.internal.SessionFactoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
@@ -16,8 +14,12 @@ import java.util.List;
 @Repository
 public class UserDaoImp implements UserDao {
 
+    private final SessionFactory sessionFactory;
+
     @Autowired
-    private SessionFactory sessionFactory;
+    public UserDaoImp(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
     @Override
     public void add(User user) {
@@ -35,17 +37,18 @@ public class UserDaoImp implements UserDao {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
-            List<Car> cars = session.createQuery("from Car where series = :seriesParam and model = :modelParam")
-                    .setParameter("seriesParam", series)
+            List<User> users = session.createQuery("from User where car.model = :modelParam and car.series = :seriesParam")
                     .setParameter("modelParam", model)
+                    .setParameter("seriesParam", series)
                     .list();
 
-            return session.get(User.class, cars.get(0).getUser().getId());
+            if (users.size() != 0) {
+                return users.get(0);
+            }
         } catch (HibernateError e) {
             sessionFactory.getCurrentSession().getTransaction().rollback();
         }
 
         return null;
     }
-
 }
